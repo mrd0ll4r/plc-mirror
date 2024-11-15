@@ -188,6 +188,7 @@ func (m *Mirror) runOnce(ctx context.Context) error {
 		}
 
 		if len(newEntries) == 0 || cursor == oldCursor {
+			log.Info().Msg("Got no new messages, throttling...")
 			break
 		}
 
@@ -208,6 +209,11 @@ func (m *Mirror) runOnce(ctx context.Context) error {
 		}
 
 		log.Info().Msgf("Got %d log entries. New cursor: %q", len(newEntries), cursor)
+
+		if len(newEntries) < 1000 {
+			log.Info().Msg("Got fewer than 1000 messages, throttling...")
+			break
+		}
 	}
 	return nil
 }
