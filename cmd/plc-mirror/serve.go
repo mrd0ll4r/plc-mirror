@@ -85,6 +85,10 @@ func (s *Server) serve(ctx context.Context, req *http.Request) convreq.HttpRespo
 	log := zerolog.Ctx(ctx)
 
 	requestedDid := strings.ToLower(strings.TrimPrefix(req.URL.Path, "/"))
+	if len(requestedDid) == 0 {
+		return respond.NotFound("missing DID parameter")
+	}
+
 	var entry PLCLogEntry
 	err = s.db.Model(&entry).Where("did = ? AND (NOT nullified)", requestedDid).Order("plc_timestamp desc").Limit(1).Take(&entry).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
